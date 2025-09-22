@@ -1,0 +1,41 @@
+{
+    "workbench.colorCustomizations": {
+        "[Default Light Modern]": {
+
+        },
+        "editor.wordHighlightStrongBorder": "#FF6347",
+        "editor.wordHighlightBorder": "#FFD700",
+        "editor.selectionHighlightBorder": "#A9A9A9",
+                    "tab.activeBorderTop": "#FF8800",
+            "tab.unfocusedActiveBorderTop": "#FF880088",
+            "textCodeBlock.background": "#00000015",
+
+            "activityBar.background": "#FFE6CC",
+            "activityBar.foreground": "#CC5200",
+            "activityBar.border": "#FFB366",
+
+            "titleBar.activeBackground": "#FFD9B3",
+            "titleBar.activeForeground": "#4C2600",
+            "titleBar.inactiveBackground": "#FFE6CC",
+            "titleBar.inactiveForeground": "#CC5200",
+
+            "tree.indentGuidesStroke": "#FF8800",
+            "editor.lineHighlightBackground": "#FFF2E6",
+            "editorCursor.foreground": "#FF5500"
+    },
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "[html]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[css]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-
