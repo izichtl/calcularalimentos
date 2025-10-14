@@ -1,0 +1,7 @@
+<header class="top-bar">
+  <div class="top-bar__brand">Calcular Alimentos</div>
+  <nav class="top-bar__nav">
+    <!-- <a href="#" id="nav-calculator" class="top-bar__link active">Calculadora</a> -->
+	<a href="historico.html" id="nav-history1" class="top-bar__link">Histórico</a>
+  </nav>
+</header>

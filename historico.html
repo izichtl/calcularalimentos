@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <title>Histórico diário</title>
+    <link rel="stylesheet" href="css.css" />
+    <link rel="stylesheet" href="mobile.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      .chart-container {
+        width: 100%;
+        max-width: 900px;
+        margin: 40px auto 30px;
+      }
+
+      .chart-title {
+        text-align: center;
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #1d3557;
+        margin-bottom: 10px;
+      }
+
+      .meta-inputs {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin: 10px auto 0;
+      }
+
+      .meta-inputs label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.9rem;
+        color: #444;
+      }
+
+      .meta-inputs input {
+        width: 70px;
+        text-align: left;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        padding: 3px 6px;
+      }
+
+      canvas {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+      }
+    </style>
+  </head>
+  <body>
+    <header class="top-bar">
+      <div class="top-bar__brand">Calcular Alimentos</div>
+      <nav class="top-bar__nav">
+        <a href="index.html" class="top-bar__link">Voltar para a calculadora</a>
+      </nav>
+    </header>
+
+    <div class="container clearfix">
+      <div class="divider">
+        <div class="corpo history-wrapper">
+          <br />
+          <br />
+          <br />
+          <h2>Histórico alimentar</h2>
+
+          <!-- Linha de Metas -->
+          <p class="chart-title">Defina suas metas diárias</p>
+          <div class="meta-inputs">
+            <label
+              >Proteína:
+              <input
+                id="meta-proteina"
+                type="number"
+                min="0"
+                step="1"
+                value="170"
+              />g</label
+            >
+            <label
+              >Carboidrato:
+              <input
+                id="meta-carbo"
+                type="number"
+                min="0"
+                step="1"
+                value="160"
+              />g</label
+            >
+            <label
+              >Gorduras:
+              <input
+                id="meta-gordura"
+                type="number"
+                min="0"
+                step="1"
+                value="60"
+              />g</label
+            >
+          </div>
+
+          <!-- Gráfico -->
+          <div class="chart-container">
+            <p class="chart-title">Evolução dos Macros</p>
+            <canvas id="macrosChart"></canvas>
+          </div>
+
+          <div id="history-content"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        const STORAGE_KEY = 'calcularAlimentosHistorico';
+        const DATA_SOURCE_PATH = 'script.js';
+        const NUMBER_FORMAT = new Intl.NumberFormat('pt-BR', {
+          maximumFractionDigits: 0,
+        });
+        const container = document.getElementById('history-content');
+
+        let chartInstance = null;
+
+        if (!container) return;
+
+        function escapeHtml(value) {
+          return String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+        }
+
+        function formatarDataBr(iso) {
+          if (typeof iso !== 'string' || iso.length !== 10) return iso || '';
+          const partes = iso.split('-');
+          if (partes.length !== 3) return iso;
+          return `${partes[2]}/${partes[1]}/${partes[0]}`;
+        }
+
+        function formatarNumero(valor) {
+          if (!Number.isFinite(valor)) return '0';
+          return NUMBER_FORMAT.format(valor);
+        }
+
+        function lerHistorico() {
+          try {
+            const bruto = localStorage.getItem(STORAGE_KEY);
+            if (!bruto) return {};
+            const dados = JSON.parse(bruto);
+            return dados && typeof dados === 'object' ? dados : {};
+          } catch {
+            return {};
+          }
+        }
+
+        function normalizarNumero(valor, isEnergia) {
+          const numero = Number(valor);
+          if (!Number.isFinite(numero)) return 0;
+          if (isEnergia) return Math.round(numero / 4.184);
+          return numero;
+        }
+
+        function normalizarAlimento(alimento) {
+          return {
+            id: Number(alimento.id),
+            descricao: alimento.descricao || 'Alimento',
+            energia: normalizarNumero(alimento.energia, true),
+            proteina: normalizarNumero(alimento.proteina),
+            carboidrato: normalizarNumero(alimento.carboidrato),
+            lipidios: normalizarNumero(alimento.lipidios),
+          };
+        }
+
+        async function carregarCatalogo() {
+          const resposta = await fetch(DATA_SOURCE_PATH);
+          const corpo = await resposta.text();
+          const inicioBloco = corpo.indexOf('var taco =');
+          const inicioJson = corpo.indexOf('`', inicioBloco);
+          const limite = corpo.indexOf('var tacoJSON', inicioJson);
+          const fimJson = corpo.lastIndexOf('`', limite);
+          const jsonBruto = corpo.slice(inicioJson + 1, fimJson);
+          const dados = JSON.parse(jsonBruto);
+          const mapa = new Map();
+
+          dados.taco.forEach((grupo) => {
+            grupo.grupo.forEach((alimento) => {
+              const normalizado = normalizarAlimento(alimento);
+              if (Number.isFinite(normalizado.id))
+                mapa.set(normalizado.id, normalizado);
+            });
+          });
+
+          return mapa;
+        }
+
+        function montarCabecalho() {
+          return `
+            <div class="line-warpper history-head">
+              <div class="food name"><b>Alimento</b></div>
+              <div class="food qtd"><b>Gramas</b></div>
+              <div class="food calories"><b>Calorias</b></div>
+              <div class="food proteins"><b>Proteinas</b></div>
+              <div class="food carbohydrates"><b>Carboidratos</b></div>
+              <div class="food fats"><b>Gorduras</b></div>
+            </div>`;
+        }
+
+        function montarTotais(totais) {
+          return `
+            <div class="history-day__totals">
+              <div class="result-item"><p>Calorias</p><div>${formatarNumero(
+                totais.calorias
+              )}</div></div>
+              <div class="result-item"><p>Proteinas</p><div>${formatarNumero(
+                totais.proteina
+              )}g</div></div>
+              <div class="result-item"><p>Carboidratos</p><div>${formatarNumero(
+                totais.carboidrato
+              )}g</div></div>
+              <div class="result-item"><p>Gorduras</p><div>${formatarNumero(
+                totais.lipidios
+              )}g</div></div>
+            </div>`;
+        }
+
+        function montarDia(dataIso, registros, catalogo) {
+          if (!Array.isArray(registros) || registros.length === 0) return '';
+          let linhas = '';
+          const totais = {
+            calorias: 0,
+            proteina: 0,
+            carboidrato: 0,
+            lipidios: 0,
+          };
+
+          registros.forEach((registro) => {
+            const alimento = catalogo.get(Number(registro.id));
+            if (!alimento) return;
+            const fator = registro.quantidade / 100;
+            const calorias = Math.round(alimento.energia * fator);
+            const proteina = Math.round(alimento.proteina * fator);
+            const carboidrato = Math.round(alimento.carboidrato * fator);
+            const lipidios = Math.round(alimento.lipidios * fator);
+            totais.calorias += calorias;
+            totais.proteina += proteina;
+            totais.carboidrato += carboidrato;
+            totais.lipidios += lipidios;
+            linhas += `
+              <div class="line-warpper history-row">
+                <div class="food-item selected name">${escapeHtml(
+                  alimento.descricao
+                )}</div>
+                <div class="food-item selected qtd">${
+                  registro.quantidade
+                }g</div>
+                <div class="food-item calories">${calorias}</div>
+                <div class="food-item proteins">${proteina}g</div>
+                <div class="food-item carbohydrates">${carboidrato}g</div>
+                <div class="food-item fats">${lipidios}g</div>
+              </div>`;
+          });
+
+          return `
+            <section class="history-day">
+              <div class="history-day__header">
+                <h3>${formatarDataBr(dataIso)}</h3>
+                ${montarTotais(totais)}
+              </div>
+              <div class="line">${montarCabecalho()}<div class="history-day__items">${linhas}</div></div>
+            </section>`;
+        }
+
+        async function montarPagina() {
+          const historico = lerHistorico();
+          const dias = Object.keys(historico).sort().slice(-7);
+
+          if (dias.length === 0) {
+            container.innerHTML = '<p>Nenhum alimento salvo ainda.</p>';
+            return;
+          }
+
+          const catalogo = await carregarCatalogo();
+          // Totais agregados por dia (gráfico em ordem cronológica)
+          const graficoData = {
+            labels: [],
+            proteina: [],
+            carboidrato: [],
+            lipidios: [],
+          };
+
+          // 1) Alimenta o gráfico na ordem normal (antigo -> recente)
+          for (const dia of dias) {
+            let totals = { p: 0, c: 0, g: 0 };
+            historico[dia].forEach((registro) => {
+              const alimento = catalogo.get(Number(registro.id));
+              if (!alimento) return;
+              const fator = registro.quantidade / 100;
+              totals.p += alimento.proteina * fator;
+              totals.c += alimento.carboidrato * fator;
+              totals.g += alimento.lipidios * fator;
+            });
+            graficoData.labels.push(formatarDataBr(dia));
+            graficoData.proteina.push(Math.round(totals.p));
+            graficoData.carboidrato.push(Math.round(totals.c));
+            graficoData.lipidios.push(Math.round(totals.g));
+          }
+
+          // 2) Monta o HTML na ordem invertida (mais recente primeiro)
+          let html = '';
+          for (const dia of [...dias].reverse()) {
+            const bloco = montarDia(dia, historico[dia], catalogo);
+            if (bloco) html += bloco;
+          }
+
+          container.innerHTML = html;
+          renderizarGrafico(graficoData);
+        }
+
+        function renderizarGrafico(data) {
+          const metas = {
+            proteina: Number(document.getElementById('meta-proteina').value),
+            carboidrato: Number(document.getElementById('meta-carbo').value),
+            lipidios: Number(document.getElementById('meta-gordura').value),
+          };
+
+          if (chartInstance) chartInstance.destroy();
+          const ctx = document.getElementById('macrosChart');
+          chartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: data.labels,
+              datasets: [
+                {
+                  label: 'Proteínas',
+                  data: data.proteina,
+                  borderColor: '#007bff',
+                  borderWidth: 2,
+                  tension: 0.3,
+                },
+                {
+                  label: 'Carboidratos',
+                  data: data.carboidrato,
+                  borderColor: '#28a745',
+                  borderWidth: 2,
+                  tension: 0.3,
+                },
+                {
+                  label: 'Gorduras',
+                  data: data.lipidios,
+                  borderColor: '#ff9800',
+                  borderWidth: 2,
+                  tension: 0.3,
+                },
+                {
+                  label: 'Meta Proteína',
+                  data: data.labels.map(() => metas.proteina),
+                  borderColor: 'rgba(0,123,255,0.4)',
+                  borderDash: [5, 5],
+                  borderWidth: 2,
+                  pointRadius: 0,
+                },
+                {
+                  label: 'Meta Carboidrato',
+                  data: data.labels.map(() => metas.carboidrato),
+                  borderColor: 'rgba(40,167,69,0.4)',
+                  borderDash: [5, 5],
+                  borderWidth: 2,
+                  pointRadius: 0,
+                },
+                {
+                  label: 'Meta Gordura',
+                  data: data.labels.map(() => metas.lipidios),
+                  borderColor: 'rgba(255,152,0,0.4)',
+                  borderDash: [5, 5],
+                  borderWidth: 2,
+                  pointRadius: 0,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              plugins: { legend: { position: 'bottom' } },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  title: { display: true, text: 'Gramas' },
+                },
+              },
+            },
+          });
+        }
+
+        ['meta-proteina', 'meta-carbo', 'meta-gordura'].forEach((id) => {
+          document.getElementById(id).addEventListener('input', montarPagina);
+        });
+
+        if (document.readyState === 'loading')
+          document.addEventListener('DOMContentLoaded', montarPagina);
+        else montarPagina();
+      })();
+    </script>
+  </body>
+</html>
