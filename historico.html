@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-br">
   <head>
     <meta charset="utf-8" />
     <title>Histórico diário</title>
-    <link rel="stylesheet" href="css.css?v=20251013" />
-    <link rel="stylesheet" href="mobile.css?v=20251013" />
+    <link rel="stylesheet" href="css.css?v=20260228" />
+    <link rel="stylesheet" href="mobile.css?v=20260228" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
       .chart-container {
@@ -215,16 +215,16 @@
           return `
             <div class="history-day__totals">
               <div class="result-item"><p>Calorias</p><div>${formatarNumero(
-                totais.calorias
+                totais.calorias,
               )}</div></div>
               <div class="result-item"><p>Proteinas</p><div>${formatarNumero(
-                totais.proteina
+                totais.proteina,
               )}g</div></div>
               <div class="result-item"><p>Carboidratos</p><div>${formatarNumero(
-                totais.carboidrato
+                totais.carboidrato,
               )}g</div></div>
               <div class="result-item"><p>Gorduras</p><div>${formatarNumero(
-                totais.lipidios
+                totais.lipidios,
               )}g</div></div>
             </div>`;
         }
@@ -254,7 +254,7 @@
             linhas += `
               <div class="line-warpper history-row">
                 <div class="food-item selected name">${escapeHtml(
-                  alimento.descricao
+                  alimento.descricao,
                 )}</div>
                 <div class="food-item selected qtd">${
                   registro.quantidade
