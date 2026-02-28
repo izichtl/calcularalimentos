@@ -11,7 +11,7 @@ function mergeTaco(base, novos) {
   const maxGroupId = Math.max(...novoTaco.taco.map((g) => g.id));
   // pega o maior id de alimento global
   const maxFoodId = Math.max(
-    ...novoTaco.taco.flatMap((g) => g.grupo.map((f) => f.id))
+    ...novoTaco.taco.flatMap((g) => g.grupo.map((f) => f.id)),
   );
 
   let nextGroupId = maxGroupId + 1;
@@ -52,6 +52,69 @@ var novosGrupos = [
         proteina: 29.27, // 12 g/41 g → 29.27 g/100 g
         lipidios: 20.0, // 8.2 g/41 g → 20.00 g/100 g
         carboidrato: 41.46, // 17 g/41 g → 41.46 g/100 g
+      },
+    ],
+  },
+  {
+    grupoNome: 'Valores Unitários',
+    grupo: [
+      {
+        grupo: 'Valores Unitários',
+        descricao: '1 kcal (apenas energia)',
+        energia: 4.184, // 1 kcal
+        proteina: 0,
+        lipidios: 0,
+        carboidrato: 0,
+      },
+      {
+        grupo: 'Valores Unitários',
+        descricao: '1g Proteína (sem calorias)',
+        energia: 0,
+        proteina: 1,
+        lipidios: 0,
+        carboidrato: 0,
+      },
+      {
+        grupo: 'Valores Unitários',
+        descricao: '1g Carboidrato (sem calorias)',
+        energia: 0,
+        proteina: 0,
+        lipidios: 0,
+        carboidrato: 1,
+      },
+      {
+        grupo: 'Valores Unitários',
+        descricao: '1g Gordura (sem calorias)',
+        energia: 0,
+        proteina: 0,
+        lipidios: 1,
+        carboidrato: 0,
+      },
+    ],
+  },
+  {
+    grupoNome: 'Gelatinas',
+    grupo: [
+      {
+        grupo: 'Gelatinas',
+        descricao: 'Gelatina Diet',
+        energia: 41.84, // 10 kcal
+        proteina: 1.3,
+        lipidios: 0,
+        carboidrato: 0,
+      },
+    ],
+  },
+  {
+    grupoNome: 'Pratos e Lanches',
+    grupo: [
+      {
+        grupo: 'Pratos e Lanches',
+        descricao: 'Ceviche de Peixe Branco',
+        energia: 824.25, // 197 kcal
+        proteina: 13.6,
+        lipidios: 11.4,
+        carboidrato: 10.5,
       },
     ],
   },
@@ -211,8 +274,8 @@ function productListInject() {
             <a data-grupo="${
               grupo.grupoNome
             }" class="group-link${classeAtiva}" href="javascript:escolha('${
-      grupo.grupoNome
-    }')">${grupo.grupoNome.toUpperCase()}</a>
+              grupo.grupoNome
+            }')">${grupo.grupoNome.toUpperCase()}</a>
         </div>
         `;
   }
