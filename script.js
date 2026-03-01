@@ -289,6 +289,97 @@ function productListInject() {
   escolha(grupoAtivo, true);
 }
 
+function removeAccents(str) {
+  return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+function clearSearch() {
+  var input = document.getElementById('searchInput');
+  input.value = '';
+  atualizarGrupoAtivoUI();
+  escolha(grupoAtivo);
+}
+
+function searchFood() {
+  var input = document.getElementById('searchInput');
+  // Divide a busca em termos (ex: "frango peito" -> ["frango", "peito"])
+  // e remove acentos para facilitar a busca (ex: "paçoca" -> "pacoca")
+  var rawFilter = input.value.toLowerCase();
+  var filterTerms = removeAccents(rawFilter)
+    .split(' ')
+    .filter((t) => t.length > 0);
+
+  var selectDiv = document.getElementById('select');
+
+  // Se o campo estiver vazio, volta para o grupo ativo
+  if (filterTerms.length === 0) {
+    atualizarGrupoAtivoUI();
+    escolha(grupoAtivo);
+    return;
+  }
+
+  // Desmarca os grupos visuais enquanto busca
+  var links = document.querySelectorAll('.group-link');
+  for (var k = 0; k < links.length; k++) {
+    links[k].classList.remove('active');
+  }
+
+  var htmlResult = '';
+
+  // Varre todos o tacoArray procurando o termo
+  for (var i = 0; i < tacoArray.length; i++) {
+    var grupo = tacoArray[i];
+    for (var j = 0; j < grupo.grupo.length; j++) {
+      var alimento = grupo.grupo[j];
+
+      var descricaoNormalizada = removeAccents(
+        alimento.descricao.toLowerCase(),
+      );
+
+      // Verifica se TODOS os termos da busca estão presentes na descrição
+      var match = true;
+      for (var t = 0; t < filterTerms.length; t++) {
+        if (descricaoNormalizada.indexOf(filterTerms[t]) === -1) {
+          match = false;
+          break;
+        }
+      }
+
+      if (match) {
+        htmlResult += `
+            <div class="line-warpper">
+            <div class="food-item name"><a href="javascript:prato(${
+              alimento.id
+            },'null')">${alimento.descricao}</a></div>
+            <div class="food-item qtd"><a href="javascript:prato(${
+              alimento.id
+            },'null')">100g</a></div>
+            <div class="food-item calories"><a href="javascript:prato(${
+              alimento.id
+            },'null')">${Math.round(alimento.energia)}</a></div>
+            <div class="food-item proteins"><a href="javascript:prato(${
+              alimento.id
+            },'null')">${Math.round(alimento.proteina)}g</a></div>
+            <div class="food-item carbohydrates"><a href="javascript:prato(${
+              alimento.id
+            },'null')">${Math.round(alimento.carboidrato)}g</a></div>
+            <div class="food-item fats"><a href="javascript:prato(${
+              alimento.id
+            },'null')">${Math.round(alimento.lipidios)}g</a></div>
+            </div>
+        `;
+      }
+    }
+  }
+
+  if (htmlResult === '') {
+    htmlResult =
+      '<div style="padding: 20px; text-align: center;">Nenhum alimento encontrado.</div>';
+  }
+
+  selectDiv.innerHTML = htmlResult;
+}
+
 function atualizarGrupoAtivoUI() {
   var links = document.querySelectorAll('.group-link');
   for (var i = 0; i < links.length; i++) {
@@ -302,6 +393,12 @@ function atualizarGrupoAtivoUI() {
 }
 
 function escolha(grupoNome, apenasAtualizarLista) {
+  // Limpar busca ao trocar de grupo
+  var searchInput = document.getElementById('searchInput');
+  if (searchInput && searchInput.value !== '') {
+    searchInput.value = '';
+  }
+
   if (grupoNome && grupoNome !== grupoAtivo) {
     grupoAtivo = grupoNome;
   }
