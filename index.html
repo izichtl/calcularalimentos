@@ -45,6 +45,11 @@
 			é uma ferramenta prática para controlar sua alimentação e acompanhar os nutrientes que você consome. Com a <strong>calculadora de calorias</strong>, você pode saber não apenas quantas calorias cada alimento fornece, mas também monitorar os principais macronutrientes: proteínas, carboidratos e gorduras.</p>
 			<p>Utilizando a calculadora, você consegue planejar refeições mais equilibradas, ajustando a quantidade de cada alimento de acordo com suas necessidades energéticas e nutricionais, garantindo uma dieta saudável e adequada ao seu objetivo.</p>
 				<div align="center">
+					<h3>Buscar Alimento</h3>
+					<div class="search-container" style="margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; max-width: 755px;">
+						<input type="text" id="searchInput" onkeyup="searchFood()" placeholder="Digite o nome do alimento..." style="padding: 10px; width: 100%; box-sizing: border-box; font-size: 16px; border: 1px solid #ccc; border-radius: 4px;">
+						<button onclick="clearSearch()" style="padding: 10px 15px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; background-color: #f0f0f0; cursor: pointer; white-space: nowrap;">Limpar</button>
+					</div>
 					<h3>Grupos de alimentos</h3>
             <div id="product-list">
             <div class="product-groups"><a></a></div></div>
