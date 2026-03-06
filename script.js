@@ -53,6 +53,14 @@ var novosGrupos = [
         lipidios: 20.0, // 8.2 g/41 g → 20.00 g/100 g
         carboidrato: 41.46, // 17 g/41 g → 41.46 g/100 g
       },
+      {
+        grupo: 'Barras de Proteína',
+        descricao: 'Sense Whey Bar - Creme de Avelã',
+        energia: 1655.0, // (178 kcal / 45 g) * 100 * 4.184
+        proteina: 33.33, // (15 g / 45 g) * 100
+        lipidios: 10.44, // (4.7 g / 45 g) * 100
+        carboidrato: 42.22, // (19 g / 45 g) * 100
+      },
     ],
   },
   {
