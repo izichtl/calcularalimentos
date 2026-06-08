@@ -196,6 +196,26 @@
             });
           });
 
+          try {
+            const inicioNovos = corpo.indexOf('var novosGrupos =');
+            if (inicioNovos !== -1) {
+              const fimNovos = corpo.indexOf('\n];', inicioNovos) + 3;
+              const novosGruposCode = corpo.slice(inicioNovos, fimNovos);
+              // eslint-disable-next-line no-new-func
+              const novosGrupos = (new Function(novosGruposCode + '; return novosGrupos;'))();
+              let nextFoodId = Math.max(...mapa.keys()) + 1;
+              novosGrupos.forEach((novoGrupo) => {
+                novoGrupo.grupo.forEach((item) => {
+                  const normalizado = normalizarAlimento({ ...item, id: nextFoodId++ });
+                  if (Number.isFinite(normalizado.id))
+                    mapa.set(normalizado.id, normalizado);
+                });
+              });
+            }
+          } catch (_) {
+            // silently ignore if novosGrupos cannot be parsed
+          }
+
           return mapa;
         }
 
