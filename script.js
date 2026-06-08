@@ -53,6 +53,14 @@ var novosGrupos = [
         lipidios: 20.0, // 8.2 g/41 g → 20.00 g/100 g
         carboidrato: 41.46, // 17 g/41 g → 41.46 g/100 g
       },
+      {
+        grupo: 'Barras de Proteína',
+        descricao: 'Sense Whey Bar - Creme de Avelã',
+        energia: 1655.0, // (178 kcal / 45 g) * 100 * 4.184
+        proteina: 33.33, // (15 g / 45 g) * 100
+        lipidios: 10.44, // (4.7 g / 45 g) * 100
+        carboidrato: 42.22, // (19 g / 45 g) * 100
+      },
     ],
   },
   {
@@ -115,6 +123,19 @@ var novosGrupos = [
         proteina: 13.6,
         lipidios: 11.4,
         carboidrato: 10.5,
+      },
+    ],
+  },
+  {
+    grupoNome: 'Pastas e Patês',
+    grupo: [
+      {
+        grupo: 'Pastas e Patês',
+        descricao: 'Homus (grão de bico com azeite)',
+        energia: 515, // kJ por 100 g — receita: ~170 g grão-de-bico cozido (112 kcal/100 g) + 8 g azeite + água/limão → 220 g; ~123 kcal/100 g → 514.6 kJ/100 g (embalagem plástica: 5 g, subtrair ao pesar)
+        proteina: 5.2, // g por 100 g
+        lipidios: 5.3, // g por 100 g
+        carboidrato: 13.7, // g por 100 g
       },
     ],
   },

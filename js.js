@@ -55,6 +55,19 @@ var novosGrupos = [
       },
     ],
   },
+  {
+    grupoNome: 'Pastas e Patês',
+    grupo: [
+      {
+        grupo: 'Pastas e Patês',
+        descricao: 'Homus (grão de bico com azeite)',
+        energia: 515, // kJ por 100 g — receita: ~170 g grão-de-bico cozido (112 kcal/100 g) + 8 g azeite + água/limão → 220 g; ~123 kcal/100 g → 514.6 kJ/100 g (embalagem plástica: 5 g, subtrair ao pesar)
+        proteina: 5.2, // g por 100 g
+        lipidios: 5.3, // g por 100 g
+        carboidrato: 13.7, // g por 100 g
+      },
+    ],
+  },
 ];
 
 var taco = `

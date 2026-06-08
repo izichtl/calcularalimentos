@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <title>Histórico diário</title>
-    <link rel="stylesheet" href="css.css?v=20260301" />
-    <link rel="stylesheet" href="mobile.css?v=20260301" />
+    <link rel="stylesheet" href="css.css?v=20260306" />
+    <link rel="stylesheet" href="mobile.css?v=20260306" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
       .chart-container {
@@ -195,6 +195,26 @@
                 mapa.set(normalizado.id, normalizado);
             });
           });
+
+          try {
+            const inicioNovos = corpo.indexOf('var novosGrupos =');
+            if (inicioNovos !== -1) {
+              const fimNovos = corpo.indexOf('\n];', inicioNovos) + 3;
+              const novosGruposCode = corpo.slice(inicioNovos, fimNovos);
+              // eslint-disable-next-line no-new-func
+              const novosGrupos = (new Function(novosGruposCode + '; return novosGrupos;'))();
+              let nextFoodId = Math.max(...mapa.keys()) + 1;
+              novosGrupos.forEach((novoGrupo) => {
+                novoGrupo.grupo.forEach((item) => {
+                  const normalizado = normalizarAlimento({ ...item, id: nextFoodId++ });
+                  if (Number.isFinite(normalizado.id))
+                    mapa.set(normalizado.id, normalizado);
+                });
+              });
+            }
+          } catch (_) {
+            // silently ignore if novosGrupos cannot be parsed
+          }
 
           return mapa;
         }
